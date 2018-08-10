@@ -8,7 +8,7 @@ shakespeare = "to be or not to be that is the question"
 # Function that generates a 28 character string from the alphabet + space
 def generate(char_set, str_len):
     gen_str = ''
-    for i in range(0, str_len):
+    for _ in range(0, str_len):
         rand_char = random.randrange(0, len(char_set)-1)
         gen_str += char_set[rand_char]
     return gen_str
