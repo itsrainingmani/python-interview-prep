@@ -15,7 +15,7 @@ class LogicGate:
 class BinaryGate(LogicGate):
 
     def __init__(self, n):
-        # Initialize data items from parent class
+        # Always initialize data items from parent class
         LogicGate.__init__(self, n)
 
         # Move on to child class unique items
