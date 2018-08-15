@@ -17,9 +17,10 @@ class Fraction:
     # This is the constructor method for the class
     # The self parameter is used as a reference back to the object itself
     def __init__(self, top, bottom):
-
-        self.num = top
-        self.den = bottom
+        # Maintain lowest terms from initialization
+        common = gcd(top, bottom)
+        self.num = top // common
+        self.den = bottom // common
 
     # Class method to provide string representation
     def show(self):
@@ -35,8 +36,8 @@ class Fraction:
     def __add__(self, other):
         newnum = self.num*other.den + self.den*other.num
         newden = self.den*other.den
-        common = gcd(newnum, newden)
-        return Fraction(newnum//common, newden//common)
+        # common = gcd(newnum, newden)
+        return Fraction(newnum, newden)
 
     # This method provides deep quality where the values of the fractions
     # are compared instead of seeing if they are references
@@ -51,22 +52,22 @@ class Fraction:
     def __sub__(self, other):
         newnum = self.num*other.den - self.den*other.num
         newden = self.den*other.den
-        common = gcd(newnum, newden)
-        return Fraction(newnum//common, newden//common)
+        # common = gcd(newnum, newden)
+        return Fraction(newnum, newden)
 
     # Function to overload the * operator
     def __mul__(self, other):
         newnum = self.num * other.num
         newden = self.den * other.den
-        common = gcd(newnum, newden)
-        return Fraction(newnum//common, newden//common)
+        # common = gcd(newnum, newden)
+        return Fraction(newnum, newden)
 
     # Function to overload the / operator
     def __truediv__(self, other):
         newnum = self.num * other.den
         newden = self.den * other.num
-        common = gcd(newnum, newden)
-        return Fraction(newnum//common, newden//common)
+        # common = gcd(newnum, newden)
+        return Fraction(newnum, newden)
 
     # Function to overload the < operator
     def __lt__(self, other):

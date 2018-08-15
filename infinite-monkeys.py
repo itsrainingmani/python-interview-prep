@@ -1,6 +1,6 @@
 import random
 
-#List containing the lowercase alphabet + space character
+# List containing the lowercase alphabet + space character
 alphabet = [chr(i) for i in range(97, 123)]
 alphabet.append(' ')
 shakespeare = "to be or not to be that is the question"
