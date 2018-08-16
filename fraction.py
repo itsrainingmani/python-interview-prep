@@ -49,6 +49,8 @@ class Fraction:
     # The idea of repr is to give a string which contains a series
     # of symbols which we can type in the interpreter and get
     # the same value which was sent as an arg to repr
+    # By convention the method should return a string that is a
+    # valid Python expression
     def __repr__(self):
         return "Fraction(" + str(self.num) + ", " + str(self.den) + ")"
 
