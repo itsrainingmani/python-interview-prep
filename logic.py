@@ -182,7 +182,7 @@ def halfadder():
     c5 = Connector(ta, g2)
     c6 = Connector(tb, g2)
 
-    s =  g2.getOutput()
+    s = g2.getOutput()
     c = g1.getOutput()
 
     print("Sum: %i, Carry: %i" % (s, c))
