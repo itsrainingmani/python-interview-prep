@@ -4,6 +4,19 @@ class Sudoku:
 
     def __init__(self, board_file_location):
         self.board = []
+        self.sector_dict = {
+            1: [(0,0), (2,2)],
+            2: [(0,3), (2,5)],
+            3: [(0,5), (2,8)],
+            4: [(3,0), (5,2)],
+            5: [(3,3), (5,5)],
+            6: [(3,5), (5,8)],
+            7: [(6,0), (8,2)],
+            8: [(6,3), (8,5)],
+            9: [(6,6), (8,8)]
+        }
+        self.temp_vals = [[[] for j in range(0, 9)] for i in range(0, 9)]
+
         with open(board_file_location, newline='') as csvfile:
             linereader = csv.reader(csvfile, delimiter=',')
             for row in linereader:
@@ -28,12 +41,58 @@ class Sudoku:
                 s += "‾ "*3 + ' ' + "‾ "*3 + ' ' + "‾ "*3 + '\n'
         return s
 
+    def getColumn(self, col_index):
+        return [self.board[i][col_index] for i in range(0, len(self.board))]
+
+    def checkColumn(self, col_index, num_to_check):
+        return num_to_check in [self.board[i][col_index] for i in range(0,len(self.board))]
+
+    def whichSector(self, x, y):
+        if x <= 2 and y <= 8:
+            if x <= 2 and y <= 2:
+                return 1
+            elif x <= 2 and y <= 5:
+                return 2
+            else:
+                return 3
+        elif (x <= 5 and y <= 8) and (x > 2):
+            if x <= 5 and y <= 2:
+                return 4
+            elif x <= 5 and y <= 5:
+                return 5
+            else:
+                return 6
+        elif (x <= 8 and y <= 8) and (x > 5):
+            if x <= 8 and y <= 2:
+                return 7
+            elif x <= 8 and y <= 5:
+                return 8
+            else:
+                return 9
+
+    def getSectorVals(self, sec_num):
+        sec_bounds = self.sector_dict[sec_num]
+        lower_bnd = sec_bounds[0]
+        upper_bnd = sec_bounds[1]
+
+        sector_vals = []
+        for i in range(lower_bnd[0], upper_bnd[0]+1):
+            for j in range(lower_bnd[1], upper_bnd[1]+1):
+                sector_vals.append(self.board[i][j])
+        
+        return sector_vals
+
     def solve(self):
         pass
 
 def main():
     s = Sudoku("./sudoku_easy.csv")
     print(s)
+    # for i in range(0, 9):
+    #     for j in range(0, 9):
+    #         print(i, j, s.whichSector(i, j))
+    # print(s.getColumn(8))
+    print(s.temp_vals)
 
 if __name__ == "__main__":
     main()
