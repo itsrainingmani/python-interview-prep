@@ -1,4 +1,4 @@
-import csv
+import csv, time
 
 class Sudoku:
 
@@ -15,6 +15,7 @@ class Sudoku:
             8: [(6,3), (8,5)],
             9: [(6,6), (8,8)]
         }
+        self.num_set = {i for i in range(1,10)}
         self.temp_vals = [[[] for j in range(0, 9)] for i in range(0, 9)]
 
         with open(board_file_location, newline='') as csvfile:
@@ -41,13 +42,19 @@ class Sudoku:
                 s += "‾ "*3 + ' ' + "‾ "*3 + ' ' + "‾ "*3 + '\n'
         return s
 
-    def getColumn(self, col_index):
+    def get_column(self, col_index):
         return [self.board[i][col_index] for i in range(0, len(self.board))]
 
-    def checkColumn(self, col_index, num_to_check):
-        return num_to_check in [self.board[i][col_index] for i in range(0,len(self.board))]
+    def get_row(self, row_index):
+        return self.board[row_index]
 
-    def whichSector(self, x, y):
+    def check_column(self, col_index, num_to_check):
+        return num_to_check in self.get_column(col_index)
+
+    def check_row(self, row_index, num_to_check):
+        return num_to_check in self.get_row(row_index)
+
+    def which_sector(self, x, y):
         if x <= 2 and y <= 8:
             if x <= 2 and y <= 2:
                 return 1
@@ -70,7 +77,7 @@ class Sudoku:
             else:
                 return 9
 
-    def getSectorVals(self, sec_num):
+    def get_sector_values(self, sec_num):
         sec_bounds = self.sector_dict[sec_num]
         lower_bnd = sec_bounds[0]
         upper_bnd = sec_bounds[1]
@@ -88,32 +95,62 @@ class Sudoku:
                 return False
 
         for i in range(0, 9):
-            col = self.getColumn(i)
+            col = self.get_column(i)
             if 0 in col or len(set(col)) < 9:
                 return False
 
         for k in self.sector_dict.keys():
-            sector = self.getSectorVals(k)
+            sector = self.get_sector_values(k)
             if 0 in sector or len(set(sector)) < 9:
                 return False
 
         return True
+    
+    def update_board(self, x, y, val):
+        self.board[x][y] = val
+
+        row = self.get_row(x)
+        col = self.get_column(y)
+        sector = self.get_sector_values(self.which_sector(x, y))
 
     def solve(self):
-        pass
+        start_time = time.time()
+        total_num_passes = 0
+        while not self.is_solved() and total_num_passes < 10000:
+            for i in range(0, 9):
+                for j in range(0, 9):
+                    if self.board[i][j] == 0:
+                        if len(self.temp_vals[i][j]) == 0:
+                            row = self.get_row(i)
+                            col = self.get_column(j)
+                            sector = self.get_sector_values(self.which_sector(i, j))
+                            possible_row_vals = self.num_set - {row} - {0}
+                            possible_col_vals = self.num_set - {col} - {0}
+                            possible_sec_vals = self.num_set - {sector} - {0}
+                            tot_pos_vals = [possible_row_vals + possible_col_vals + possible_sec_vals]
+                            if len(tot_pos_vals) == 1:
+                                self.update_board(i, j, tot_pos_vals[0])
+                            else:
+                                self.temp_vals[i][j] = tot_pos_vals
+                        elif len(self.temp_vals[i][j]) == 1:
+                            self.update_board(i, j, self.temp_vals[i][j][0])
+                        else:
+                            pass
+            total_num_passes += 1
+
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        print("Sudoku Solved in %i seconds" % elapsed_time)
+
         
 
 def main():
-    s = Sudoku("./sudoku_easy_4035.csv")
+    s = Sudoku("./sudoku_easy.csv")
     # s1 = Sudoku("./sudoku_easy_4035_solved.csv")
     print("Beginning to Solve")
-    # print(s)
-    # for i in range(0, 9):
-    #     for j in range(0, 9):
-    #         print(i, j, s.whichSector(i, j))
-    # print(s.getColumn(8))
-    # print(s.temp_vals)
-    print(s1.is_solved())
+    print(s)
+    s.solve()
+    # print(s.is_solved())
 
 if __name__ == "__main__":
     main()
