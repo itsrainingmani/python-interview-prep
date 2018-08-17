@@ -94,24 +94,26 @@ class Sudoku:
 
         for k in self.sector_dict.keys():
             sector = self.getSectorVals(k)
-            if 0 in sector or len(set(sector) < 9):
+            if 0 in sector or len(set(sector)) < 9:
                 return False
 
         return True
 
     def solve(self):
+        pass
         
 
 def main():
-    s = Sudoku("./sudoku_easy.csv")
+    s = Sudoku("./sudoku_easy_4035.csv")
+    # s1 = Sudoku("./sudoku_easy_4035_solved.csv")
     print("Beginning to Solve")
-    print(s)
-    s.solve()
+    # print(s)
     # for i in range(0, 9):
     #     for j in range(0, 9):
     #         print(i, j, s.whichSector(i, j))
     # print(s.getColumn(8))
     # print(s.temp_vals)
+    print(s1.is_solved())
 
 if __name__ == "__main__":
     main()
