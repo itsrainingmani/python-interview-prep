@@ -82,17 +82,36 @@ class Sudoku:
         
         return sector_vals
 
+    def is_solved(self):
+        for row in self.board:
+            if 0 in row or len(set(row)) < 9:
+                return False
+
+        for i in range(0, 9):
+            col = self.getColumn(i)
+            if 0 in col or len(set(col)) < 9:
+                return False
+
+        for k in self.sector_dict.keys():
+            sector = self.getSectorVals(k)
+            if 0 in sector or len(set(sector) < 9):
+                return False
+
+        return True
+
     def solve(self):
-        pass
+        
 
 def main():
     s = Sudoku("./sudoku_easy.csv")
+    print("Beginning to Solve")
     print(s)
+    s.solve()
     # for i in range(0, 9):
     #     for j in range(0, 9):
     #         print(i, j, s.whichSector(i, j))
     # print(s.getColumn(8))
-    print(s.temp_vals)
+    # print(s.temp_vals)
 
 if __name__ == "__main__":
     main()
