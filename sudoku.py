@@ -1,5 +1,16 @@
 import csv, time
 
+# class Cell:
+
+#     def __init__(self, posX, posY, val):
+#         self.X = posX
+#         self.Y = posY
+#         self.value = val
+#         self.alt_vals = []
+
+#     def __str__(self):
+#         return "Value: " + self.value + ", Pos: (" + self.X + ", " + self.Y + ")"
+
 class Sudoku:
 
     def __init__(self, board_file_location):
@@ -15,8 +26,8 @@ class Sudoku:
             8: [(6,3), (8,5)],
             9: [(6,6), (8,8)]
         }
-        self.num_set = {i for i in range(1,10)}
-        self.temp_vals = [[[] for j in range(0, 9)] for i in range(0, 9)]
+        self.num_set = set([1,2,3,4,5,6,7,8,9])
+        self.alt_vals = [[[] for j in range(0, 9)] for i in range(0, 9)]
 
         with open(board_file_location, newline='') as csvfile:
             linereader = csv.reader(csvfile, delimiter=',')
@@ -91,27 +102,51 @@ class Sudoku:
 
     def is_solved(self):
         for row in self.board:
-            if 0 in row or len(set(row)) < 9:
+            if 0 in row:
                 return False
 
         for i in range(0, 9):
             col = self.get_column(i)
-            if 0 in col or len(set(col)) < 9:
+            if 0 in col:
                 return False
 
         for k in self.sector_dict.keys():
             sector = self.get_sector_values(k)
-            if 0 in sector or len(set(sector)) < 9:
+            if 0 in sector:
                 return False
 
         return True
+        # return self.alt_vals == [[[] for j in range(0, 9)] for i in range(0, 9)]
     
     def update_board(self, x, y, val):
         self.board[x][y] = val
 
-        row = self.get_row(x)
-        col = self.get_column(y)
-        sector = self.get_sector_values(self.which_sector(x, y))
+        # since the below functions are actually list comprehensions
+        # we can't use them to modify the alt_vals state
+        # So we have to manually traverse row, col and sector
+        # row = self.get_row(x)
+        # col = self.get_column(y)
+        # sector = self.get_sector_values(self.which_sector(x, y))
+
+        self.alt_vals[x][y] = []
+
+        for j in range(0, 9):
+            if val in self.alt_vals[x][j]:
+                del self.alt_vals[x][j][self.alt_vals[x][j].index(val)]
+
+        for i in range(0, 9):
+            if val in self.alt_vals[i][y]:
+                del self.alt_vals[i][y][self.alt_vals[i][y].index(val)]
+
+        sec_num = self.which_sector(x, y)
+        sec_bounds = self.sector_dict[sec_num]
+        lower_bnd = sec_bounds[0]
+        upper_bnd = sec_bounds[1]
+
+        for i in range(lower_bnd[0], upper_bnd[0]+1):
+            for j in range(lower_bnd[1], upper_bnd[1]+1):
+                if val in self.alt_vals[i][j]:
+                    del self.alt_vals[i][j][self.alt_vals[i][j].index(val)]
 
     def solve(self):
         start_time = time.time()
@@ -120,20 +155,17 @@ class Sudoku:
             for i in range(0, 9):
                 for j in range(0, 9):
                     if self.board[i][j] == 0:
-                        if len(self.temp_vals[i][j]) == 0:
+                        if len(self.alt_vals[i][j]) == 0:
                             row = self.get_row(i)
                             col = self.get_column(j)
                             sector = self.get_sector_values(self.which_sector(i, j))
-                            possible_row_vals = self.num_set - {row} - {0}
-                            possible_col_vals = self.num_set - {col} - {0}
-                            possible_sec_vals = self.num_set - {sector} - {0}
-                            tot_pos_vals = [possible_row_vals + possible_col_vals + possible_sec_vals]
+                            tot_pos_vals = [self.num_set - (row & col & sector) - {0}]
                             if len(tot_pos_vals) == 1:
                                 self.update_board(i, j, tot_pos_vals[0])
                             else:
-                                self.temp_vals[i][j] = tot_pos_vals
-                        elif len(self.temp_vals[i][j]) == 1:
-                            self.update_board(i, j, self.temp_vals[i][j][0])
+                                self.alt_vals[i][j] = tot_pos_vals
+                        elif len(self.alt_vals[i][j]) == 1:
+                            self.update_board(i, j, self.alt_vals[i][j][0])
                         else:
                             pass
             total_num_passes += 1
@@ -150,7 +182,8 @@ def main():
     print("Beginning to Solve")
     print(s)
     s.solve()
-    # print(s.is_solved())
+    print(s.is_solved())
+    # print(s.alt_vals)
 
 if __name__ == "__main__":
     main()
