@@ -25,7 +25,7 @@ while first_word.islower():
 
 chain = [first_word]
 
-n_words = 50
+n_words = 100
 
 for i in range(n_words):
     chain.append(np.random.choice(word_dict[chain[-1]]))
