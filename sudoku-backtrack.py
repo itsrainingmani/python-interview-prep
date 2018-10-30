@@ -13,6 +13,14 @@ class Cell:
         return "Value: " + self.value + ", Pos: (" + self.X + ", " + self.Y + ")"
 
 
+def update_coords(c):
+    j2 = c[1] + 1
+    if j2 == 9:
+        return (c[0] + 1, c[1])
+    else:
+        return (c[0], c[1] + 1)
+
+
 class Sudoku:
     def __init__(self, board_file_location):
         self.board = []
@@ -28,6 +36,8 @@ class Sudoku:
             9: [(6, 6), (8, 8)],
         }
         self.num_set = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+        # Move Queue of format - ((x, y), val)
         self.move_queue = []
 
         temp = []
@@ -76,10 +86,10 @@ class Sudoku:
         return self.board[row_index]
 
     def check_column(self, col_index, num_to_check):
-        return num_to_check in self.get_column(col_index)
+        return num_to_check in set(self.get_column(col_index))
 
     def check_row(self, row_index, num_to_check):
-        return num_to_check in self.get_row(row_index)
+        return num_to_check in set(self.get_row(row_index))
 
     def which_sector(self, x, y):
         if x <= 2 and y <= 8:
@@ -104,7 +114,8 @@ class Sudoku:
             else:
                 return 9
 
-    def get_sector_values(self, sec_num):
+    def get_sector_values(self, x, y):
+        sec_num = self.which_sector(x, y)
         sec_bounds = self.sector_dict[sec_num]
         lower_bnd = sec_bounds[0]
         upper_bnd = sec_bounds[1]
@@ -116,8 +127,15 @@ class Sudoku:
 
         return sector_vals
 
-    def check_sector(self, sec_num, num_to_check):
-        return num_to_check in self.get_sector_values(sec_num)
+    def check_sector(self, x, y, num_to_check):
+        return num_to_check in set(self.get_sector_values(x, y))
+
+    def is_move_valid(self, x, y, n):
+        return not (
+            self.check_row(x, n)
+            and self.check_column(y, n)
+            and self.check_sector(x, y, n)
+        )
 
     def backtrack(self):
         pass
@@ -126,7 +144,16 @@ class Sudoku:
         pass
 
     def solve(self):
-        pass
+        (i, j) = (0, 0)
+
+        while (i, j) != (9, 8):
+            cur_cell = self.board[i][j]
+            if cur_cell.default:
+                (i, j) = update_coords((i, j))
+            else:
+                next_move = cur_cell.possibilities[0]
+                if self.is_move_valid(i, j, next_move):
+                    cur_cell.value = next_move
 
 
 def main():
@@ -136,12 +163,12 @@ def main():
     print(s)
 
     start_time = time.time()
-    total_num_passes = 0
-    # s.solve()
+
+    s.solve()
 
     end_time = time.time()
     elapsed_time = end_time - start_time
-    print("Sudoku Solved in %i seconds" % elapsed_time)
+    print("Sudoku Solved in %f seconds" % elapsed_time)
 
 
 if __name__ == "__main__":
